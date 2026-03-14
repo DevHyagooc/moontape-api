@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TitleType {
+  MOVIE
+  SERIES
+  ANIME
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  viewings       Viewing[]
+  watchlistItems WatchlistItem[]
+  favoriteTitles FavoriteTitle[]
+}
+
+model Title {
+  id            Int      @id @default(autoincrement())
+  title         String
+  originalTitle String?
+  type          TitleType
+  description   String?  @db.Text
+  releaseDate   DateTime?
+  runtime       Int?
+  posterUrl     String?
+  backdropUrl   String?
+
+  source     String?
+  externalId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  viewings       Viewing[]
+  watchlistItems WatchlistItem[]
+  favoriteTitles FavoriteTitle[]
+  titleGenres    TitleGenre[]
+}
+
+model Genre {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  titleGenres TitleGenre[]
+}
+
+model TitleGenre {
+  id      Int @id @default(autoincrement())
+  titleId Int
+  genreId Int
+
+  title Title @relation(fields: [titleId], references: [id])
+  genre Genre @relation(fields: [genreId], references: [id])
+
+  @@unique([titleId, genreId])
+}
+
+model Viewing {
+  id      Int @id @default(autoincrement())
+  userId  Int
+  titleId Int
+
+  viewedAt DateTime @default(now())
+  rating   Int?
+  review   String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  title Title @relation(fields: [titleId], references: [id])
+}
+
+model WatchlistItem {
+  id      Int @id @default(autoincrement())
+  userId  Int
+  titleId Int
+
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  title Title @relation(fields: [titleId], references: [id])
+
+  @@unique([userId, titleId])
+}
+
+model FavoriteTitle {
+  id      Int @id @default(autoincrement())
+  userId  Int
+  titleId Int
+
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  title Title @relation(fields: [titleId], references: [id])
+
+  @@unique([userId, titleId])
+}
