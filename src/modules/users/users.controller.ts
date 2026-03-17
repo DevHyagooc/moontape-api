@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Get, Param, ParseIntPipe, Patch, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/updateUser.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags, ApiOkResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetCurrentUser } from 'src/common/decorators/getCurrentUserDecorator';
+import { UserResponseDto } from './dto/responses/userResponse.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -12,6 +13,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({ summary: 'Create a new user' })
+  @ApiOkResponse({ type: UserResponseDto })
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
@@ -19,6 +21,7 @@ export class UsersController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get authenticated user profile' })
+  @ApiOkResponse({ type: UserResponseDto })
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@GetCurrentUser('userId') userId: number) {
@@ -27,6 +30,7 @@ export class UsersController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update authenticated user profile' })
+  @ApiOkResponse({ type: UserResponseDto })
   @UseGuards(JwtAuthGuard)
   @Patch('me')
   updateMe(
