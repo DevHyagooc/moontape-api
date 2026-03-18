@@ -5,6 +5,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TitlesModule } from './modules/titles/titles.module';
 import { WatchlistModule } from './modules/watchlist/watchlist.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 
 @Module({
   imports: [
@@ -12,10 +13,11 @@ import { WatchlistModule } from './modules/watchlist/watchlist.module';
       isGlobal: true,
     }),
     PrismaModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
     TitlesModule,
-    WatchlistModule
+    WatchlistModule,
+    FavoritesModule
   ],
   controllers: [],
   providers: [],

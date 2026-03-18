@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { WatchlistItemResponseDto } from './watchlistItemResponse.dto copy';
+import { WatchlistItemResponseDto } from './watchlistItemResponse.dto';
 
 export class WatchlistResponseDto {
   @ApiProperty({

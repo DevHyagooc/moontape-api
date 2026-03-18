@@ -1,6 +1,7 @@
 import {  ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AddWatchlistItemDto } from './dto/addWatchlistItem.dto';
+import { TitleMapper } from '../../common/mappers/title.mapper';
 
 @Injectable()
 export class WatchlistService {
@@ -12,22 +13,7 @@ export class WatchlistService {
       userId: item.userId,
       titleId: item.titleId,
       createdAt: item.createdAt,
-      title: {
-        id: item.title.id,
-        title: item.title.title,
-        originalTitle: item.title.originalTitle,
-        type: item.title.type,
-        description: item.title.description,
-        releaseDate: item.title.releaseDate,
-        runtime: item.title.runtime,
-        posterUrl: item.title.posterUrl,
-        backdropUrl: item.title.backdropUrl,
-        source: item.title.source,
-        externalId: item.title.externalId,
-        createdAt: item.title.createdAt,
-        updatedAt: item.title.updatedAt,
-        genres: item.title.titleGenres.map((tg: any) => tg.genre),
-      },
+      title: TitleMapper.toResponse(item.title),
     };
   }
    
@@ -98,7 +84,7 @@ export class WatchlistService {
       }
    }
 
-   async removeToWatchlist(userId: number, titleId: number) {
+   async removeFromWatchlist(userId: number, titleId: number) {
       const watchlistItem = await this.prisma.watchlistItem.findUnique({
          where: {
             userId_titleId: {

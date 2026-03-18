@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } f
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { WatchlistService } from "./watchlist.service";
-import { WatchlistItemResponseDto } from "./dto/responses/watchlistItemResponse.dto copy";
+import { WatchlistItemResponseDto } from "./dto/responses/watchlistItemResponse.dto";
 import { GetCurrentUser } from "src/common/decorators/getCurrentUserDecorator";
 import { AddWatchlistItemDto } from "./dto/addWatchlistItem.dto";
 import { WatchlistResponseDto } from "./dto/responses/watchlistResponse.dto";
@@ -42,11 +42,11 @@ export class WatchlistController {
       }
    })
    @Delete(':titleId')
-   removeToWatchlist(
+   removeFromWatchlist(
       @GetCurrentUser('userId') userId: number,
       @Param('titleId', ParseIntPipe) titleId: number
    ){
-      return this.watchlistService.removeToWatchlist(userId, titleId)
+      return this.watchlistService.removeFromWatchlist(userId, titleId)
    }
 
 }
