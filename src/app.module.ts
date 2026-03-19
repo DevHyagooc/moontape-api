@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { TitlesModule } from './modules/titles/titles.module';
 import { WatchlistModule } from './modules/watchlist/watchlist.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { ViewingsModule } from './modules/viewings/viewings.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
     AuthModule,
     UsersModule,
     TitlesModule,
+    ViewingsModule,
     WatchlistModule,
     FavoritesModule
   ],

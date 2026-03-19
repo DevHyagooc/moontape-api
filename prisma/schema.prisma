@@ -74,8 +74,8 @@ model Viewing {
   titleId Int
 
   viewedAt DateTime @default(now())
-  rating   Int?
-  review   String? @db.Text
+  rating   Decimal  @db.Decimal(2, 1)
+  review   String?  @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
