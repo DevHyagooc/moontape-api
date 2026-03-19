@@ -7,6 +7,7 @@ import { TitlesModule } from './modules/titles/titles.module';
 import { WatchlistModule } from './modules/watchlist/watchlist.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { ViewingsModule } from './modules/viewings/viewings.module';
+import { LibraryModule } from './modules/library/library.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { ViewingsModule } from './modules/viewings/viewings.module';
     TitlesModule,
     ViewingsModule,
     WatchlistModule,
-    FavoritesModule
+    FavoritesModule,
+    LibraryModule
   ],
   controllers: [],
   providers: [],
