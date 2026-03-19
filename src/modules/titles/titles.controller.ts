@@ -1,9 +1,12 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { ApiOperation, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiOkResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { TitlesService } from './titles.service';
 import { FindTitlesDto } from './dto/findTitles.dto';
 import { PaginatedTitlesResponseDto } from './dto/responses/paginatedTitlesResponse.dto';
 import { TitleResponseDto } from './dto/responses/titleResponse.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { TitleDetailsResponseDto } from './dto/responses/titleDetailsResponse.dto';
+import { GetCurrentUser } from 'src/common/decorators/getCurrentUserDecorator';
 
 @ApiTags('Titles')
 @Controller('titles')
@@ -22,5 +25,17 @@ export class TitlesController {
    @Get(':id')
    findOne(@Param('id', ParseIntPipe) id: number) {
       return this.titlesService.findOne(id)
+   }
+
+   @ApiOperation({ summary: 'Get title details with authenticated user context' })
+   @ApiBearerAuth()
+   @UseGuards(JwtAuthGuard)
+   @ApiOkResponse({ type: TitleDetailsResponseDto })
+   @Get(':id/details')
+   findOneWithUserContext(
+      @Param('id', ParseIntPipe) id: number,
+      @GetCurrentUser('userId') userId: number,
+   ) {
+      return this.titlesService.findOneWithUserContext(id, userId);
    }
 }
