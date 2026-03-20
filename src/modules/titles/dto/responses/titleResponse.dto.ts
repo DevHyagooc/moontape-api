@@ -11,7 +11,7 @@ export class TitleResponseDto {
   @ApiPropertyOptional({ example: 'ナルト', nullable: true })
   originalTitle?: string | null;
 
-  @ApiProperty({ example: 'ANIME' })
+  @ApiProperty({ example: 'SERIES' })
   type: string;
 
   @ApiPropertyOptional({

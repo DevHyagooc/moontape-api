@@ -15,7 +15,7 @@ CREATE TABLE `Title` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `title` VARCHAR(191) NOT NULL,
     `originalTitle` VARCHAR(191) NULL,
-    `type` ENUM('MOVIE', 'SERIES', 'ANIME') NOT NULL,
+    `type` ENUM('MOVIE', 'SERIES') NOT NULL,
     `description` TEXT NULL,
     `releaseDate` DATETIME(3) NULL,
     `runtime` INTEGER NULL,

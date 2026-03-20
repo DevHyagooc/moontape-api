@@ -10,7 +10,6 @@ datasource db {
 enum TitleType {
   MOVIE
   SERIES
-  ANIME
 }
 
 model User {
