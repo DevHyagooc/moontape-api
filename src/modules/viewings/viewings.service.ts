@@ -3,6 +3,7 @@ import { TitleMapper } from "src/common/mappers/title.mapper";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateViewingDto } from "./dto/createViewing.dto";
 import { UpdateViewingDto } from "./dto/updateViewing.dto";
+import { FindViewingsDto } from "./dto/findViewings.dto";
 
 @Injectable()
 export class ViewingsService {
@@ -66,27 +67,78 @@ export class ViewingsService {
       return this.mapViewingItem(viewing)
    }
 
-   async getViewings(userId: number){
-      const viewings = await this.prisma.viewing.findMany({
-         where: { userId },
-         orderBy: {
-            createdAt: 'desc'
-         },
-         include: {
-            title: {
-               include: {
-                  titleGenres: {
-                     include: {
-                        genre: true,
+   async getViewings(userId: number, params: FindViewingsDto){
+      const { page = 1, limit= 10, name, type, rating, viewedAtFrom, viewedAtTo} = params
+
+      const skip = (page - 1) * limit
+
+      const where = {
+         userId,
+         ...(rating !== undefined && { rating }),
+         ...((viewedAtFrom || viewedAtTo) && {
+            viewedAt: {
+               ...(viewedAtFrom && { gte: viewedAtFrom }),
+               ...(viewedAtTo && { lte: viewedAtTo }),
+            },
+         }),
+         ...(type || name
+            ? {
+               title: {
+                  ...(type && { type }),
+                  ...(name && {
+                     OR: [
+                        {
+                           title: {
+                              contains: name,
+                           },
+                        },
+                        {
+                           originalTitle: {
+                              contains: name,
+                           },
+                        },
+                     ],
+                  }),
+               },
+            }
+         : {}),
+      };
+
+      const [viewings, total] = await Promise.all([
+         this.prisma.viewing.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: {
+            viewedAt: 'desc',
+            },
+            include: {
+               title: {
+                  include: {
+                     titleGenres: {
+                        include: {
+                           genre: true,
+                        },
                      },
                   },
                },
             },
-         }
-      })
+         }),
+         this.prisma.viewing.count({
+            where,
+         }),
+      ]);
 
-      return { data: viewings.map((item) => this.mapViewingItem(item)) }
-   }
+      return {
+         data: viewings.map((item) => this.mapViewingItem(item)),
+         meta: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+         },
+      };
+      }
 
    async getViewingById(userId: number, id: number){
       const viewing = await this.prisma.viewing.findFirst({

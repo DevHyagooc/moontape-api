@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiTags, ApiOkResponse } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { FavoritesService } from "./favorites.service";
@@ -6,6 +6,7 @@ import { FavoritesResponseDto } from "./dto/responses/favoritesResponse.dto";
 import { GetCurrentUser } from "src/common/decorators/getCurrentUserDecorator";
 import { AddFavoriteDto } from "./dto/addFavoriteItem.dto";
 import { FavoriteItemResponseDto } from "./dto/responses/favoriteItemResponse.dto";
+import { FindFavoritesDto } from "./dto/findFavorites.dto";
 
 @ApiTags('Favorites')
 @ApiBearerAuth()
@@ -27,8 +28,11 @@ export class FavoritesController {
    @ApiOperation({ summary: 'List authenticated user favorites' })
    @ApiCreatedResponse({ type: FavoritesResponseDto })
    @Get()
-   getFavorites(@GetCurrentUser('userId') userId: number) {
-      return this.favoritesService.getFavorites(userId)
+   getFavorites(
+      @GetCurrentUser('userId') userId: number,
+      @Query() params: FindFavoritesDto
+   ) {
+      return this.favoritesService.getFavorites(userId, params)
    }
 
    @ApiOperation({ summary: 'Remove title from favorites' })

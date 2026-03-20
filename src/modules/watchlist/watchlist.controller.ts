@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { WatchlistService } from "./watchlist.service";
@@ -6,6 +6,7 @@ import { WatchlistItemResponseDto } from "./dto/responses/watchlistItemResponse.
 import { GetCurrentUser } from "src/common/decorators/getCurrentUserDecorator";
 import { AddWatchlistItemDto } from "./dto/addWatchlistItem.dto";
 import { WatchlistResponseDto } from "./dto/responses/watchlistResponse.dto";
+import { FindWatchlistsDto } from "./dto/findWatchlists.dto";
 
 @ApiTags('Watchlist')
 @ApiBearerAuth()
@@ -28,9 +29,10 @@ export class WatchlistController {
    @ApiOkResponse({ type: WatchlistResponseDto })
    @Get()
    getWatchlist(
-      @GetCurrentUser('userId') userId: number
+      @GetCurrentUser('userId') userId: number,
+      @Query() params: FindWatchlistsDto
    ){
-      return this.watchlistService.getWatchlist(userId)
+      return this.watchlistService.getWatchlist(userId, params)
    }
 
    @ApiOperation({ summary: 'Remove title from watchlist' })

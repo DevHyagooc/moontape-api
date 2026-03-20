@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiTags, ApiOkResponse } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ViewingsService } from "./viewings.service";
@@ -7,6 +7,7 @@ import { ViewingItemResponseDto } from "./dto/responses/viewingItemResponse.dto"
 import { GetCurrentUser } from "src/common/decorators/getCurrentUserDecorator";
 import { CreateViewingDto } from "./dto/createViewing.dto";
 import { UpdateViewingDto } from "./dto/updateViewing.dto";
+import { FindViewingsDto } from "./dto/findViewings.dto";
 
 @ApiTags('Viewings')
 @ApiBearerAuth()
@@ -30,8 +31,9 @@ export class ViewingsController {
   @Get()
   getViewings(
     @GetCurrentUser('userId') userId: number,
+    @Query() params: FindViewingsDto
   ){
-    return this.viewingsService.getViewings(userId)
+    return this.viewingsService.getViewings(userId, params)
   }
 
   @ApiOperation({ summary: 'Get authenticated user viewing by id' })

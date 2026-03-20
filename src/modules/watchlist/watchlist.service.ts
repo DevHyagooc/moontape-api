@@ -2,6 +2,8 @@ import {  ConflictException, Injectable, NotFoundException } from '@nestjs/commo
 import { PrismaService } from '../../prisma/prisma.service';
 import { AddWatchlistItemDto } from './dto/addWatchlistItem.dto';
 import { TitleMapper } from '../../common/mappers/title.mapper';
+import { FindWatchlistsDto } from './dto/findWatchlists.dto';
+import { contains } from 'class-validator';
 
 @Injectable()
 export class WatchlistService {
@@ -60,27 +62,69 @@ export class WatchlistService {
       return this.mapWatchlistItem(item)
    }
 
-   async getWatchlist(userId: number) {
-      const watchlist = await this.prisma.watchlistItem.findMany({
-         where: { userId }, 
-         orderBy: {
-            createdAt: 'desc'
-         },
-         include: {
-            title: {
-               include: {
-                  titleGenres: {
-                     include: {
-                        genre: true
+   async getWatchlist(userId: number, params: FindWatchlistsDto) {
+      const { page = 1, limit= 10, name, type} = params
+
+      const skip = (page - 1) * limit
+
+      const where = {
+         userId,
+         ...(type || name
+            ? {
+               title: {
+                  ...(type && { type }),
+                  ...(name && {
+                     OR: [
+                        {
+                           title: {
+                              contains: name,
+                           },
+                        },
+                        {
+                           originalTitle: {
+                              contains: name,
+                           },
+                        },
+                     ],
+                  }),
+               },
+            } 
+         : {}),
+      }
+
+      const [watchlist, total] = await Promise.all([
+         this.prisma.watchlistItem.findMany({
+            where,
+            skip,
+            take: limit, 
+            orderBy: {
+               createdAt: 'desc'
+            },
+            include: {
+               title: {
+                  include: {
+                     titleGenres: {
+                        include: {
+                           genre: true
+                        }
                      }
                   }
                }
             }
-         }
-      })
+         }),
+         this.prisma.watchlistItem.count({
+            where
+         })
+      ])
 
       return {
-         data: watchlist.map((item) => this.mapWatchlistItem(item))
+         data: watchlist.map((item) => this.mapWatchlistItem(item)),
+         meta: {
+            page,
+            limit,
+            total,
+            totalPage: Math.ceil(total / limit)
+         }
       }
    }
 

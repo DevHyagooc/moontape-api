@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { TitleType } from 'src/common/enums/titleType.enum';
 
-export class FindTitlesDto {
+export class FindFavoritesDto {
    @ApiPropertyOptional({ example: 1 })
    @IsOptional()
    @Type(() => Number)

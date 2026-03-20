@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { PrismaService } from "src/prisma/prisma.service";
 import { AddFavoriteDto } from "./dto/addFavoriteItem.dto";
 import { TitleMapper } from '../../common/mappers/title.mapper';
+import { FindFavoritesDto } from "./dto/findFavorites.dto";
 
 @Injectable()
 export class FavoritesService {
@@ -60,26 +61,70 @@ export class FavoritesService {
     return this.mapFavoriteItem(item)
   }
 
-  async getFavorites(userId: number) {
-    const favorites = await this.prisma.favoriteTitle.findMany({
-      where: { userId },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      include: {
-        title: {
-          include: {
-            titleGenres: {
-              include: {
-                genre: true
+  async getFavorites(userId: number, params: FindFavoritesDto) {
+    const { page = 1, limit= 10, name, type} = params
+
+    const skip = (page - 1) * limit
+
+    const where = {
+        userId,
+        ...(type || name
+          ? {
+              title: {
+                ...(type && { type }),
+                ...(name && {
+                    OR: [
+                      {
+                          title: {
+                            contains: name,
+                          },
+                      },
+                      {
+                          originalTitle: {
+                            contains: name,
+                          },
+                      },
+                    ],
+                }),
+              },
+          } 
+        : {}),
+    }
+    
+    const [favorites, total] = await Promise.all([
+      this.prisma.favoriteTitle.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc'
+        },
+        include: {
+          title: {
+            include: {
+              titleGenres: {
+                include: {
+                  genre: true
+                }
               }
             }
           }
         }
-      }
-    })
+      }),
+      this.prisma.favoriteTitle.count({
+        where
+      })
+    ])
 
-    return { data: favorites.map((item) => this.mapFavoriteItem(item)) }
+    return { 
+      data: favorites.map((item) => this.mapFavoriteItem(item)),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPage: Math.ceil(total / limit)
+      }
+    }
   }
 
   async removeFromFavorite(userId: number, titleId: number) {
